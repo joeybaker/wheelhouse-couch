@@ -11,10 +11,17 @@ describe('db', function(){
     app.use(dbPlugin, {
       name: pkg.name + '-test'
       , callback: function(){
-      dbPlugin.should.exist
-      app.db.should.exist
-      done()
-    }})
+        dbPlugin.should.exist
+        app.db.should.exist
+        done()
+      }
+      , getId: function(model){
+        return model.url().replace('/api/', '')
+      }
+      , getCollectionName: function(collection){
+        return collection.url.replace('/api/', '')
+      }
+    })
   })
   it('has a database', function(done){
     app.db.exists(function(err, exists){
