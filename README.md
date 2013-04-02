@@ -18,6 +18,12 @@ app.use(dbPlugin, {
   , cache: true // disabled by default in development
   , raw: false // cradle default
   , callback: function(){} // do something after the database connection has been established
+  , getId: function(model){ // used to get the DB id from the model. the default behavior follows: {{collectionName}}/{{UUID}}
+    return model.url().substring(1) // default
+  }
+  , getCollectionName: function(collection){
+    return collection.url.substring(1) // default
+  }
 })
 app.start(8999)
 ```
