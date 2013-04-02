@@ -33,7 +33,7 @@
     "chai": "~1.5",
     "mocha": "~1.8",
     "grunt-simple-mocha": "~0.3",
-    "union": "~0.3.7",
-    "grunt-shell": "~0.2.1"
+    "union": "~0.3",
+    "grunt-shell": "~0.2"
   }
 }
