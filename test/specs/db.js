@@ -99,6 +99,17 @@ describe('db', function(){
         }
       })
     })
+    it('can delete a model', function(done){
+      testers.first().destroy({
+        success: function(model, res){
+          res._rev.should.exist
+          done()
+        }
+        , error: function(model, xhr){
+          console.error(xhr)
+        }
+      })
+    })
   })
 
   after(function(done){
