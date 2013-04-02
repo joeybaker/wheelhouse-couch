@@ -70,7 +70,7 @@ module.exports = function(grunt){
         }
       }
       , gitPush: {
-        command: 'git push --tags'
+        command: 'git push origin master --tags'
         , options: {
           stderr: true
           , stdout: true
