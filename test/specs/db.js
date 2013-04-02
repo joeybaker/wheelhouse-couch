@@ -23,7 +23,6 @@ describe('db', function(){
     })
   })
   it('can write data', function(done){
-    // mockDb.put('/' + dbConfig.name +   '/')
     app.db.save('first', {value: 1}, function(err, res){
       res.ok.should.be.ok
       done()
@@ -59,7 +58,7 @@ describe('db', function(){
     })
     , Collection = Backbone.Collection.extend({
       model: Model
-      , url: '/testers'
+      , url: '/api/testers'
     })
     , testers = new Collection()
 
@@ -99,6 +98,3 @@ describe('db', function(){
     app.db.destroy(done)
   })
 })
-
-
-
