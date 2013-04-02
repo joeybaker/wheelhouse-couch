@@ -62,7 +62,7 @@ module.exports = function(grunt){
         }
       }
       , gitCommitPackage: {
-        command: 'git commit --amend -i package.json --reuse-message HEAD~1'
+        command: 'git commit --amend -i package.json --reuse-message HEAD'
         , options: {
           stderr: true
           , stdout: true
