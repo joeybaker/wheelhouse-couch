@@ -25,7 +25,6 @@ module.exports = function(grunt){
         }
         , src: [
           'package.json'
-          , 'component.json'
         ]
       }
       , minor: {
@@ -61,4 +60,5 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-bumpx')
 
   grunt.registerTask('test', ['simplemocha'])
+  grunt.registerTask('publish', ['simplemocha', 'bump:patch'])
 }
