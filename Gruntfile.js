@@ -52,13 +52,37 @@ module.exports = function(grunt){
         src: ['test/specs/**/*.js']
       }
     }
+    , shell: {
+      gitTag: {
+        command: 'git tag v<%= grunt.file.readJSON("package.json").version %>'
+        , options: {
+          stderr: true
+          , failOnError: true
+        }
+      }
+      , gitPush: {
+        command: 'git push --tags'
+        , options: {
+          stderr: true
+          , failOnError: true
+        }
+      }
+      , npmPublish: {
+        command: 'npm publish'
+        , options: {
+          stderr: true
+          , failOnError: true
+        }
+      }
+    }
   })
 
   grunt.loadNpmTasks('grunt-contrib-jshint')
   grunt.loadNpmTasks('grunt-simple-mocha')
   grunt.loadNpmTasks('grunt-notify')
+  grunt.loadNpmTasks('grunt-shell')
   grunt.loadNpmTasks('grunt-bumpx')
 
   grunt.registerTask('test', ['simplemocha'])
-  grunt.registerTask('publish', ['simplemocha', 'bump:patch'])
+  grunt.registerTask('publish', ['simplemocha', 'bump:patch', 'shell:gitTag', 'shell:gitPush', 'npm publish'])
 }
