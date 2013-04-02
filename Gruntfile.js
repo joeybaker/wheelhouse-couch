@@ -57,6 +57,15 @@ module.exports = function(grunt){
         command: 'git tag v<%= grunt.file.readJSON("package.json").version %>'
         , options: {
           stderr: true
+          , stdout: true
+          , failOnError: true
+        }
+      }
+      , gitCommitPackage: {
+        command: 'git commit --amend -i package.json --reuse-message HEAD~1'
+        , options: {
+          stderr: true
+          , stdout: true
           , failOnError: true
         }
       }
@@ -64,6 +73,7 @@ module.exports = function(grunt){
         command: 'git push --tags'
         , options: {
           stderr: true
+          , stdout: true
           , failOnError: true
         }
       }
@@ -71,6 +81,7 @@ module.exports = function(grunt){
         command: 'npm publish'
         , options: {
           stderr: true
+          , stdout: true
           , failOnError: true
         }
       }
@@ -84,5 +95,5 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-bumpx')
 
   grunt.registerTask('test', ['simplemocha'])
-  grunt.registerTask('publish', ['simplemocha', 'bump:patch', 'shell:gitTag', 'shell:gitPush', 'npm publish'])
+  grunt.registerTask('publish', ['simplemocha', 'bump:patch', 'shell:gitTag', 'shell:gitPush', 'shell:npmPublish'])
 }
