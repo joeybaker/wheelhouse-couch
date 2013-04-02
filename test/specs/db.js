@@ -78,6 +78,9 @@ describe('db', function(){
           model.get('name').should.equal('testing a name')
           done()
         }
+        , error: function(model, xhr){
+          console.error(xhr)
+        }
       })
     })
     it('can update a model', function(done){
@@ -86,6 +89,9 @@ describe('db', function(){
           model.get('name').should.equal('testing again')
           res._rev.should.exist
           done()
+        }
+        , error: function(model, xhr){
+          console.error(xhr)
         }
       })
     })
@@ -96,6 +102,9 @@ describe('db', function(){
         success: function(collection){
           collection.first().get('name').should.equal('testing again')
           done()
+        }
+        , error: function(model, xhr){
+          console.error(xhr)
         }
       })
     })
