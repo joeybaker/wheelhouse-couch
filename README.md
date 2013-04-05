@@ -17,18 +17,21 @@ app.use(dbPlugin, {
   // also takes cradle options
   , cache: true // disabled by default in development
   , raw: false // cradle default
+  // additional advanced options
   , callback: function(){} // do something after the database connection has been established
-  , getId: function(model){ // used to get the DB id from the model. the default behavior follows: {{collectionName}}/{{UUID}}
+  , getId: function(model){ // used internally to get the DB id from the model. the default behavior follows: {{collectionName}}/{{UUID}}
     return model.url().substring(1) // default
   }
   , getCollectionName: function(collection){
+    // you might want to override this if your collection urls don't match your collection names
+    // e.g. if your collection url is '/api/collectionName', you could use: `return collection.url.split('/')[2]`
     return collection.url.substring(1) // default
   }
 })
 app.start(8999)
 ```
 
-After using the plugin, `Backbone.sync` is overridden to use CouchDB.
+After using the plugin, `Backbone.sync` is overridden to use CouchDB on the server.
 
 ### Important note:
 Your models should override the default `id` attribute to use `_id`.
@@ -40,7 +43,10 @@ var model = Backbone.Model.extend({
 ```
 
 ## tests
-You must have [grunt-cli](https://github.com/gruntjs/grunt-cli) installed: `sudo npm i -g grunt-cli`
 
-### Run tests
+### The grunt way
+You must have [grunt-cli](https://github.com/gruntjs/grunt-cli) installed: `sudo npm i -g grunt-cli`
 `npm test`
+
+### The Mocha way
+`mocha test/specs -ui bdd`
