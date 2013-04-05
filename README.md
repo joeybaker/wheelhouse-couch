@@ -1,7 +1,9 @@
-flatiron-couch-backbone
+wheelhouse-couch
 =======================
 
-A flatiron plugin that allows you to use Backbone server side, and uses Couch for it's data store. This is largely a rewrite of [backbone-couch](https://github.com/developmentseed/backbone-couch) to get it to play nicely with [flatiron](https://github.com/flatiron/flatiron) and use the excellent [cradle](https://github.com/cloudhead/cradle) CouchDB library.
+_formerly known as [flatiron-couch-backbone](http://github.com/joeybaker/flatiron-couch-backbone)_
+
+A wheelhouse package for using Backbone server side with [flatiron](https://github.com/flatiron/flatiron). This sets Couch as the data store for the server and is largely a rewrite of [backbone-couch](https://github.com/developmentseed/backbone-couch).  CouchDB communication is via the excellent [cradle](https://github.com/cloudhead/cradle) CouchDB library.
 
 ## Usage
 ```js
