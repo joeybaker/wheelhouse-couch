@@ -9,7 +9,7 @@ A wheelhouse package for using Backbone server side with [flatiron](https://gith
 ```js
 var flatiron = require('flatiron')
   , app = flatiron.app
-  , dbPlugin = require('flatiron-couch-backbone')
+  , dbPlugin = require('wheelhouse-couch')
 
 app.use(flatiron.plugins.http, {})
 app.use(dbPlugin, {
