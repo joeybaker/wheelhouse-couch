@@ -1,21 +1,22 @@
 {
-  "name": "flatiron-couch-backbone",
-  "version": "0.1.8",
-  "description": "A flatiron plugin that allows you to use Backbone server side, and uses Couch for it's data store.",
+  "name": "wheelhouse-couch",
+  "version": "0.2.0",
+  "description": "A wheelhouse library to use couchdb as a database while useing backbone on ther server.",
   "main": "index.js",
   "scripts": {
     "test": "grunt test"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:joeybaker/flatiron-couch-backbone.git"
+    "url": "git@github.com:joeybaker/wheelhouse-couch.git"
   },
   "keywords": [
     "flatiron",
     "couchdb",
     "couch",
     "backbone",
-    "connect"
+    "connect",
+    "wheelhouse"
   ],
   "author": "Joey Baker",
   "license": "BSD",
