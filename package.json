@@ -37,4 +37,7 @@
     "union": "~0.3",
     "grunt-shell": "~0.2"
   }
+  , "peerDependencies": {
+    "flatiron": "~0.3"
+  }
 }
