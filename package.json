@@ -1,6 +1,6 @@
 {
   "name": "wheelhouse-couch",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A wheelhouse library to use couchdb as a database while useing backbone on ther server.",
   "main": "index.js",
   "scripts": {
@@ -36,8 +36,8 @@
     "grunt-simple-mocha": "~0.3",
     "union": "~0.3",
     "grunt-shell": "~0.2"
-  }
-  , "peerDependencies": {
+  },
+  "peerDependencies": {
     "flatiron": "~0.3"
   }
 }

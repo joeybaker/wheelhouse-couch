@@ -1,4 +1,4 @@
-/*globals describe, it, after */
+/*global describe, it, after */
 'use strict';
 var App = require('../fixtures/app')
   , Backbone = require('backbone')
