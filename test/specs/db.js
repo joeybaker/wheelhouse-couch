@@ -5,6 +5,8 @@ var App = require('../fixtures/app')
   , app = new App()
   , dbPlugin = require('../../index.js')
   , pkg = require('../../package.json')
+  , chai = require('chai')
+  , should = chai.should()
 
 describe('db', function(){
   it('attaches to a flatiron app', function(done){
@@ -49,9 +51,12 @@ describe('db', function(){
     })
   })
   it('can delete data', function(done){
-    app.db.remove('first', function(err, res){
-      res.ok.should.be.true
-      done()
+    app.db.get('first', function(err, res){
+      should.not.exist(err)
+      app.db.remove('first', res._rev, function(err, res){
+        res.ok.should.be.true
+        done()
+      })
     })
   })
 
