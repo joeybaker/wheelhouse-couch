@@ -1,10 +1,10 @@
 /*global describe, it, after */
 'use strict';
-var App = require('../fixtures/app')
+var App = require('./fixtures/app')
   , Backbone = require('backbone')
   , app = new App()
-  , dbPlugin = require('../../index.js')
-  , pkg = require('../../package.json')
+  , dbPlugin = require('../index.js')
+  , pkg = require('../package.json')
   , chai = require('chai')
   , should = chai.should()
 
@@ -128,5 +128,6 @@ describe('db', function(){
 
   after(function(done){
     app.db.destroy(done)
+    require.cache = {}
   })
 })
