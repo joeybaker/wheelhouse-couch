@@ -1,6 +1,6 @@
 {
   "name": "wheelhouse-couch",
-  "version": "0.2.15",
+  "version": "0.2.16",
   "description": "A wheelhouse library to use couchdb as a database while useing backbone on ther server.",
   "main": "index.js",
   "scripts": {
