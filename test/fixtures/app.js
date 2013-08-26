@@ -4,12 +4,10 @@ var flatiron = require('flatiron')
   , path = require('path')
   , _base = path.join(__dirname, '/../..')
 
-require('chai').should()
-
 function appInstance(){
   app.use(flatiron.plugins.http, {})
-  app.start(8999)
   app._base = _base
+  app.start(8999)
 
   return app
 }

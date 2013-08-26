@@ -1,20 +1,19 @@
-/*global describe, it, after */
+/*global describe, it, after, before */
 'use strict';
-var App = require('./fixtures/app')
-  , Backbone = require('backbone')
-  , app = new App()
-  , dbPlugin = require('../index.js')
-  , pkg = require('../package.json')
-  , chai = require('chai')
-  , should = chai.should()
 
 describe('db', function(){
-  it('attaches to a flatiron app', function(done){
+  var Backbone = require('backbone')
+    , App = require('./fixtures/app')
+    , app = new App()
+    , dbPlugin = require('../index.js')
+    , pkg = require('../package.json')
+    , chai = require('chai')
+    , should = chai.should()
+
+  before(function(done){
     app.use(dbPlugin, {
       name: pkg.name + '-test'
       , callback: function(){
-        dbPlugin.should.exist
-        app.db.should.exist
         done()
       }
       , getId: function(model){
@@ -24,6 +23,11 @@ describe('db', function(){
         return collection.url.replace('/api/', '')
       }
     })
+  })
+
+  it('attaches to a flatiron app', function(){
+    dbPlugin.should.exist
+    app.db.should.exist
   })
   it('has a database', function(done){
     app.db.exists(function(err, exists){
@@ -126,8 +130,34 @@ describe('db', function(){
     })
   })
 
+  describe('keeping multiple servers in sync', function(){
+    it.only('keeps updated', function(done){
+      var Collection = Backbone.Collection.extend({
+          url: '/changes'
+        })
+        , collection = new Collection()
+
+      collection.create({value: 'first'}, {
+        success: function(model){
+          should.exist(model.get('_id'))
+
+          app.db.merge(model.get('_id'), {value: 2}, function(err, res){
+            res.ok.should.be.ok
+            setTimeout(function(){
+              collection.first().get('value').should.equal(2)
+              done()
+            }, 50)
+          })
+        }
+      })
+    })
+  })
+
   after(function(done){
-    app.db.destroy(done)
-    require.cache = {}
+    setTimeout(function(){
+      app.db.destroy(function(){
+        app.server.close(done)
+      })
+    }, 30)
   })
 })
