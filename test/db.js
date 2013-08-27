@@ -131,11 +131,19 @@ describe('db', function(){
   })
 
   describe('keeping multiple servers in sync', function(){
-    it.only('keeps updated', function(done){
-      var Collection = Backbone.Collection.extend({
-          url: '/changes'
+
+    it('keeps models updated', function(done){
+      var Model = Backbone.Model.extend({
+          idAttribute: '_id'
+        })
+        , Collection = Backbone.Collection.extend({
+          url: '/api/changes'
+          , model: Model
         })
         , collection = new Collection()
+
+      app.collections = {}
+      app.collections.changes = collection
 
       collection.create({value: 'first'}, {
         success: function(model){
@@ -143,21 +151,44 @@ describe('db', function(){
 
           app.db.merge(model.get('_id'), {value: 2}, function(err, res){
             res.ok.should.be.ok
+            // syncing isn't immediate. give it time to process
             setTimeout(function(){
               collection.first().get('value').should.equal(2)
               done()
-            }, 50)
+            }, 10)
           })
         }
+      })
+    })
+
+    it('pulls in new models from a different server', function(done){
+      var Model = Backbone.Model.extend({
+          idAttribute: '_id'
+        })
+        , Collection = Backbone.Collection.extend({
+          url: '/api/serverTest'
+          , model: Model
+        })
+        , collection = new Collection()
+
+      app.collections = {}
+      app.collections.serverTest = collection
+
+      // save to the db (as if from another server)
+      app.db.save('serverTest/1', {value: 'first'}, function(err, doc){
+        should.not.exist(err)
+        setTimeout(function(){
+          // check this server's list of models to see if we got it
+          collection.get(doc._id).get('value').should.equal('first')
+          done()
+        }, 300)
       })
     })
   })
 
   after(function(done){
-    setTimeout(function(){
-      app.db.destroy(function(){
-        app.server.close(done)
-      })
-    }, 30)
+    app.db.destroy(function(){
+      app.server.close(done)
+    })
   })
 })
