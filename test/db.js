@@ -13,17 +13,16 @@ describe('db', function(){
   before(function(done){
     app.use(dbPlugin, {
       name: pkg.name + '-test'
-      , callback: function(){
-        done()
-      }
       , getId: function(model){
         return model.url().replace('/api/', '')
       }
       , getCollectionName: function(collection){
         return collection.url.replace('/api/', '')
       }
-    })
+    }, done)
   })
+
+  it('defaults options to app.config.db')
 
   it('attaches to a flatiron app', function(){
     dbPlugin.should.exist
