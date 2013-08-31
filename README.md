@@ -35,6 +35,15 @@ app.start(8999)
 
 After using the plugin, `Backbone.sync` is overridden to use CouchDB on the server.
 
+Instead of passing options, you can use `app.config.set('db')`. Anything set in here will be the default, but overridden by the options object.
+
+```js
+app.config.set('db:name', 'database-name')
+app.config.set('db:host', 'localhost')
+app.config.set('db:cache', true)
+// …
+```
+
 ### Important note:
 Your models should override the default `id` attribute to use `_id`.
 
