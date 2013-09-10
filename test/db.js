@@ -127,6 +127,23 @@ describe('db', function(){
         }
       })
     })
+
+    it('can fetch an empty collection', function(done){
+      var EmptyCollection = Backbone.Collection.extend({
+          model: Model
+          , url: '/api/emptyCollection'
+        })
+        , emptyCollection = new EmptyCollection()
+
+      emptyCollection.fetch({
+        error: function(collection, err){
+          should.not.exist(err)
+        }
+        , success: function(){
+          done()
+        }
+      })
+    })
   })
 
   describe('keeping multiple servers in sync', function(){
