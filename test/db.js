@@ -22,7 +22,7 @@ describe('db', function(){
     }, done)
   })
 
-  it('defaults options to app.config.db')
+  it('defaults options to app.config.get("database")')
 
   it('attaches to a flatiron app', function(){
     dbPlugin.should.exist
