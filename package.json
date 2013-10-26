@@ -23,8 +23,7 @@
   "dependencies": {
     "lodash": "~2.0",
     "backbone": "~1.0",
-    "cradle": "~0.6",
-    "mocha": "~1.13.0"
+    "cradle": "~0.6.6"
   },
   "devDependencies": {
     "flatiron": "~0.3",
