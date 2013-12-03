@@ -19,7 +19,7 @@ app.use(dbPlugin, {
   , host: 'localhost' // default
   , port: 5984 // default
   // also takes cradle options
-  , cache: true // disabled by default in development
+  , cache: false // disabled by default b/c cradle's cache doesn't play nicely if your app is hosted on multiple servers
   , raw: false // cradle default
   // additional advanced options
   , getId: function(model){ // used internally to get the DB id from the model. the default behavior follows: {{collectionName}}/{{UUID}}
@@ -63,3 +63,8 @@ You must have [grunt-cli](https://github.com/gruntjs/grunt-cli) installed: `sudo
 
 ### The Mocha way
 `mocha test/specs -ui bdd`
+
+## Changelog
+
+### 0.3.9
+* pass `notOriginal` for changes feed upates. This enables ignoring of events on changes that are triggered on another server.
