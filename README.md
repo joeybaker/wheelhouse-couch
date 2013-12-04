@@ -66,5 +66,8 @@ You must have [grunt-cli](https://github.com/gruntjs/grunt-cli) installed: `sudo
 
 ## Changelog
 
+### 0.3.10
+* on db update error, don't log the input. It leads to log pollution.
+
 ### 0.3.9
 * pass `notOriginal` for changes feed upates. This enables ignoring of events on changes that are triggered on another server.
