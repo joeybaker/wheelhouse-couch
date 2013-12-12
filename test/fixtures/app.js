@@ -7,7 +7,6 @@ var flatiron = require('flatiron')
 function appInstance(){
   app.use(flatiron.plugins.http, {})
   app._base = _base
-  app.start(8999)
 
   return app
 }

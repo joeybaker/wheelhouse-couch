@@ -19,7 +19,9 @@ describe('db', function(){
       , getCollectionName: function(collection){
         return collection.url.replace('/api/', '')
       }
-    }, done)
+    })
+    app.options.log = {console: {silent: true}}
+    app.start(8999, done)
   })
 
   it('defaults options to app.config.get("database")')
