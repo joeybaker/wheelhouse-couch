@@ -200,9 +200,6 @@ describe('db', function(){
         }, 300)
       })
     })
-
-    // TODO: we need a test for keeping two different cradle instances with diffrent caches in sync that won't throught document update conflicts on updates
-    it('keeps two different cradle caches in sync for updates')
   })
 
   after(function(done){
