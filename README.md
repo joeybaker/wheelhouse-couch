@@ -37,8 +37,6 @@ app.start(8999)
 
 After using the plugin, `Backbone.sync` is overridden to use CouchDB on the server.
 
-Instead of passing options, you can use `app.config.set('db')`. Anything set in here will be the default, but overridden by the options object.
-
 ```js
 app.config.set('db:name', 'database-name')
 app.config.set('db:host', 'localhost')
@@ -65,6 +63,8 @@ You must have [grunt-cli](https://github.com/gruntjs/grunt-cli) installed: `sudo
 `mocha test/specs -ui bdd`
 
 ## Changelog
+### 0.4.0
+* **breaking change (kinda)** no longer automatically reading options from `app.config.get('db')` (this never really was operational anyway)
 
 ### 0.3.10
 * on db update error, don't log the input. It leads to log pollution.
