@@ -1,7 +1,7 @@
 /*global describe, it, after, before */
 'use strict';
 
-describe('db', function(){
+describe('db integration tests', function(){
   var Backbone = require('backbone')
     , App = require('./fixtures/app')
     , app = new App()
@@ -24,30 +24,32 @@ describe('db', function(){
     app.start(8999, done)
   })
 
-  it('defaults options to app.config.get("database")')
-
   it('attaches to a flatiron app', function(){
     dbPlugin.should.exist
     app.db.should.exist
   })
+
   it('has a database', function(done){
     app.db.exists(function(err, exists){
       exists.should.be.true
       done()
     })
   })
+
   it('can write data', function(done){
     app.db.save('first', {value: 1}, function(err, res){
       res.ok.should.be.ok
       done()
     })
   })
+
   it('can update data', function(done){
     app.db.merge('first', {value: 2, second: true}, function(err, res){
       res.ok.should.be.true
       done()
     })
   })
+
   it('can read data', function(done){
     app.db.get('first', function(err, res){
       res.value.should.equal(2)
@@ -55,6 +57,7 @@ describe('db', function(){
       done()
     })
   })
+
   it('can delete data', function(done){
     app.db.get('first', function(err, res){
       should.not.exist(err)
@@ -93,6 +96,7 @@ describe('db', function(){
         }
       })
     })
+
     it('can update a model', function(done){
       testers.first().save({name: 'testing again'}, {
         success: function(model, res){
@@ -105,6 +109,7 @@ describe('db', function(){
         }
       })
     })
+
     it('can fetch a collection', function(done){
       testers.reset()
       testers.length.should.equal(0)
@@ -118,6 +123,7 @@ describe('db', function(){
         }
       })
     })
+
     it('can delete a model', function(done){
       testers.first().destroy({
         success: function(model, res){
