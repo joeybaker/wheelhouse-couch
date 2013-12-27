@@ -31,11 +31,14 @@
     "grunt-bumpx": "~0.1",
     "grunt-notify": "~0.2",
     "grunt-contrib-jshint": "~0.7.2",
-    "chai": "~1.8",
-    "mocha": "~1.15",
     "grunt-simple-mocha": "~0.4",
     "union": "~0.3",
-    "grunt-shell": "~0.6"
+    "grunt-shell": "~0.6",
+    "grunt-jscs-checker": "~0.2.6",
+    "sinon-chai": "~2.4.0",
+    "sinon": "~1.7.3",
+    "chai": "~1.8.1",
+    "mocha": "~1.15.1"
   },
   "peerDependencies": {
     "flatiron": "~0.3"
