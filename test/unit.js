@@ -1,4 +1,4 @@
-/*global describe, it, after, before, beforeEach, afterEach */
+/*global describe, it, before, beforeEach, afterEach */
 'use strict';
 
 var chai = require('chai')
@@ -12,7 +12,7 @@ var chai = require('chai')
 chai.use(sinonChai)
 chai.should()
 
-describe.only('db unit tests', function(){
+describe('db unit tests', function(){
   before(function(){
     // fake the log
     plugin.internals.log = {
@@ -75,6 +75,7 @@ describe.only('db unit tests', function(){
     })
 
     afterEach(function(){
+      plugin.internals.uuids = []
       uuidStub.restore()
       fn.restore()
     })
@@ -98,9 +99,44 @@ describe.only('db unit tests', function(){
       uuidStub = sinon.stub(plugin.internals.connection, 'uuids')
         .callsArgWith(1, null, uuids)
     })
+  })
+
+  describe('#getUUID', function(){
+    var uuids
+      , fn
+
+    beforeEach(function(){
+      uuids = ['uuid1', 'uuid2', 'uuid3']
+      fn = plugin.internals.getUUID
+      sinon.stub(plugin.internals, 'getUUIDList')
+        .yields(uuids)
+    })
+
+    afterEach(function(){
+      plugin.internals.uuids = []
+      plugin.internals.getUUIDList.restore()
+    })
 
     it('saves the uuid list to internals', function(done){
+      fn(function(){
+        plugin.internals.uuids.should.deep.equal(uuids)
+        done()
+      })
+    })
 
+    it('calls getUUIDList if there are no stored UUIDs', function(done){
+      plugin.internals.uuids = []
+      fn(function(){
+        plugin.internals.getUUIDList.should.have.been.calledOnce
+        plugin.internals.uuids.should.deep.equal.uuids
+        done()
+      })
+    })
+
+    it('returns a single uuid', function(){
+      fn(function(uuid){
+        uuid.should.equal('uuid3')
+      })
     })
   })
 
