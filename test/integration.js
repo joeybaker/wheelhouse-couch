@@ -3,6 +3,7 @@
 
 describe('db integration tests', function(){
   var Backbone = require('backbone')
+    , request = require('request')
     , App = require('./fixtures/app')
     , app = new App()
     , dbPlugin = require('../index.js')
@@ -11,17 +12,24 @@ describe('db integration tests', function(){
     , should = chai.should()
 
   before(function(done){
-    app.use(dbPlugin, {
-      name: pkg.name + '-test'
-      , getId: function(model){
-        return model.url().replace('/api/', '')
-      }
-      , getCollectionName: function(collection){
-        return collection.url.replace('/api/', '')
-      }
+    // ensure our test user is created
+    request.put({
+      url: 'http://admin:test@localhost:5984/_config/admins/test'
+      , json: 'test'
+    }, function(){
+      app.use(dbPlugin, {
+        name: pkg.name + '-test'
+        , getId: function(model){
+          return model.url().replace('/api/', '')
+        }
+        , getCollectionName: function(collection){
+          return collection.url.replace('/api/', '')
+        }
+        , auth: {username: 'test', password: 'test'}
+      })
+      app.options.log = {console: {silent: true}}
+      app.start(8999, done)
     })
-    app.options.log = {console: {silent: true}}
-    app.start(8999, done)
   })
 
   it('attaches to a flatiron app', function(){
