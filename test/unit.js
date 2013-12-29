@@ -147,7 +147,94 @@ describe('db unit tests', function(){
     })
   })
 
-  describe('#getUUID', function(){
+  describe('#sync', function(){
+    var fn
+      , model
+      , collection
 
+    before(function(){
+      // call attach so that app is avaliable in the plugin
+      plugin.attach.call(app)
+    })
+
+    beforeEach(function(){
+      // fake that we have a db
+      plugin.internals.dbExists = true
+      fn  = plugin.internals.sync
+      model = new (Backbone.Model.extend({
+        idAttribute: '_id'
+        , urlRoot: '/model'
+      }))()
+      collection = new (Backbone.Collection.extend({
+        url: '/collection'
+      }))()
+    })
+
+    it('logs an error if the db doesn\'t exist', function(){
+      plugin.internals.dbExists = false
+      fn('read', model)
+      app.log.error.should.have.been.calledOnce
+    })
+
+    describe.only('read', function(){
+      describe('model', function(){
+        var getStub
+
+        beforeEach(function(){
+          getStub = sinon.stub(plugin.internals.db, 'get')
+          model.set({_id: 1})
+        })
+
+        afterEach(function(){
+          getStub.restore()
+        })
+
+        it('operates only on models with an id', function(){
+          model.id.should.equal(1)
+          fn('read', model)
+          getStub.should.have.been.calledOnce
+        })
+
+        it('gets from the database', function(){
+          fn('read', model)
+          getStub.should.have.been.calledOnce
+        })
+
+        it('calls success with the model, response, and options', function(){
+          var success = sinon.spy()
+            , doc = {_id: 1, _rev: 2, value: 2}
+            , options = {success: success}
+          getStub.yields(null, doc)
+
+          fn('read', model, options)
+
+          success.should.have.been.calledOnce
+          success.should.have.been.calledWith(model, doc, options)
+        })
+
+        it('logs errors', function(){
+          var error = {error: 'err', reason: 'reason'}
+          getStub.yields(error)
+          fn('read', model)
+          app.log.error.should.have.been.calledOnce
+        })
+
+        it('calls error with the model, response, and options on error', function(){
+          var options = {
+            error: sinon.stub()
+          }
+          , error = {error: 'err', reason: 'reason'}
+          getStub.yields(error)
+
+          fn('read', model, options)
+
+          options.error.should.have.been.calledOnce
+          options.error.should.have.been.calledWith(model, error, options)
+        })
+      })
+    })
+    describe('create', function(){})
+    describe('update', function(){})
+    describe('delete', function(){})
   })
 })
