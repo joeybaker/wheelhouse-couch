@@ -232,6 +232,73 @@ describe('db unit tests', function(){
           options.error.should.have.been.calledWith(model, error, options)
         })
       })
+
+      describe('collection', function(){
+        var viewStub
+
+        beforeEach(function(){
+          viewStub = sinon.stub(plugin.internals.db, 'view')
+        })
+
+        afterEach(function(){
+          viewStub.restore()
+        })
+
+        it('operates only on "models" without an id', function(){
+          fn('read', collection)
+          viewStub.should.have.been.calledOnce
+        })
+
+        it('uses the backbone/colleciton view to get models', function(){
+          fn('read', collection)
+          viewStub.should.have.been.calledWith('backbone/collection', {key: 'collection'})
+        })
+
+        it('calls success with the collection models, response, and options', function(){
+          var options = {
+              success: sinon.stub()
+            }
+            , res = {
+              rows: [
+                {value: {_id: 1, _rev: 1, value: true}}
+                , {value: {_id: 2, _rev: 1, value: true}}
+              ]
+            }
+
+          viewStub.yields(null, res)
+
+          fn('read', collection, options)
+
+          options.success.should.have.been.calledWith([res.rows[0].value, res.rows[1].value], res, options)
+        })
+
+        it('logs errors', function(){
+          var options = {
+              error: sinon.stub()
+            }
+            , error = {error: 'err', reason: 'reason'}
+
+          viewStub.yields(error)
+
+          fn('read', collection, options)
+
+          app.log.error.should.have.been.calledOnce
+        })
+
+        it('calls error with the model, response, and options on error', function(){
+          var options = {
+              error: sinon.stub()
+            }
+            , error = {error: 'err', reason: 'reason'}
+
+          viewStub.yields(error)
+
+          fn('read', collection, options)
+
+          options.error.should.have.been.calledWith(collection, error, options)
+
+        })
+      })
     })
     describe('create', function(){})
     describe('update', function(){})
