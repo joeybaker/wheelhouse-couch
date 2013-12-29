@@ -300,8 +300,27 @@ describe('db unit tests', function(){
         })
       })
     })
-    describe('create', function(){})
     describe('update', function(){})
+    describe('create', function(){
+      before(function(){
+        sinon.stub(plugin.internals, 'getUUID')
+          .yields(_.uniqueId('uuid'))
+      })
+
+      after(function(){
+        plugin.internals.getUUID.restore()
+      })
+
+      it('creates an id with the collection name ')
+      it('pauses the feed')
+      it('inserts into the db')
+      it('logs on error')
+      it('calls error with the error response')
+      it('retries if the res didn\'t return `ok`')
+      it('logs on success')
+      it('calls success with the `_rev` and `_id`')
+      it('resumes the feed after the stack has cleared')
+    })
     describe('delete', function(){})
   })
 })
