@@ -8,19 +8,26 @@ var chai = require('chai')
   , sinonChai = require('sinon-chai')
   , plugin = require('../lib/db.js')
   , Backbone = require('backbone')
+  , app = {}
 
 chai.use(sinonChai)
 chai.should()
 
 describe('db unit tests', function(){
-  before(function(){
+  beforeEach(function(){
     // fake the log
-    plugin.internals.log = {
-      debug: function(){}
-      , info: function(){}
-      , warn: function(){}
-      , error: function(){}
+    app.log = {
+      debug: sinon.stub()
+      , info: sinon.stub()
+      , warn: sinon.stub()
+      , error: sinon.stub()
     }
+  })
+
+  afterEach(function(){
+    _.each(app.log, function(stub){
+      stub.reset()
+    })
   })
 
   describe('#toJSON', function(){
