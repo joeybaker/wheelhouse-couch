@@ -176,7 +176,7 @@ describe('db unit tests', function(){
       app.log.error.should.have.been.calledOnce
     })
 
-    describe.only('read', function(){
+    describe('read', function(){
       describe('model', function(){
         var getStub
 
@@ -200,7 +200,7 @@ describe('db unit tests', function(){
           getStub.should.have.been.calledOnce
         })
 
-        it('calls success with the model, response, and options', function(){
+        it('calls success with the doc', function(){
           var success = sinon.spy()
             , doc = {_id: 1, _rev: 2, value: 2}
             , options = {success: success}
@@ -209,7 +209,7 @@ describe('db unit tests', function(){
           fn('read', model, options)
 
           success.should.have.been.calledOnce
-          success.should.have.been.calledWith(model, doc, options)
+          success.should.have.been.calledWith(doc)
         })
 
         it('logs errors', function(){
@@ -219,7 +219,7 @@ describe('db unit tests', function(){
           app.log.error.should.have.been.calledOnce
         })
 
-        it('calls error with the model, response, and options on error', function(){
+        it('calls error with the error response on error', function(){
           var options = {
             error: sinon.stub()
           }
@@ -229,7 +229,7 @@ describe('db unit tests', function(){
           fn('read', model, options)
 
           options.error.should.have.been.calledOnce
-          options.error.should.have.been.calledWith(model, error, options)
+          options.error.should.have.been.calledWith(error)
         })
       })
 
@@ -254,7 +254,7 @@ describe('db unit tests', function(){
           viewStub.should.have.been.calledWith('backbone/collection', {key: 'collection'})
         })
 
-        it('calls success with the collection models, response, and options', function(){
+        it('calls success with the collection models', function(){
           var options = {
               success: sinon.stub()
             }
@@ -269,7 +269,7 @@ describe('db unit tests', function(){
 
           fn('read', collection, options)
 
-          options.success.should.have.been.calledWith([res.rows[0].value, res.rows[1].value], res, options)
+          options.success.should.have.been.calledWith([res.rows[0].value, res.rows[1].value])
         })
 
         it('logs errors', function(){
@@ -285,7 +285,7 @@ describe('db unit tests', function(){
           app.log.error.should.have.been.calledOnce
         })
 
-        it('calls error with the model, response, and options on error', function(){
+        it('calls error with the error response on error', function(){
           var options = {
               error: sinon.stub()
             }
@@ -295,7 +295,7 @@ describe('db unit tests', function(){
 
           fn('read', collection, options)
 
-          options.error.should.have.been.calledWith(collection, error, options)
+          options.error.should.have.been.calledWith(error)
 
         })
       })
