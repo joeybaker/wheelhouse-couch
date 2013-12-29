@@ -1,8 +1,9 @@
-/*global describe, it, before, beforeEach, afterEach */
+/*global describe, it, before, after, beforeEach, afterEach */
 'use strict';
 
 var chai = require('chai')
   // , expect = chai.expect
+  , should = chai.should()
   , _ = require('lodash')
   , sinon = require('sinon')
   , sinonChai = require('sinon-chai')
@@ -11,7 +12,6 @@ var chai = require('chai')
   , app = {}
 
 chai.use(sinonChai)
-chai.should()
 
 describe('db unit tests', function(){
   beforeEach(function(){
@@ -321,11 +321,74 @@ describe('db unit tests', function(){
       it('resumes the feed after the stack has cleared')
     })
     describe('update', function(){
+      var fn
+        , model
+        , defaults
+
+      beforeEach(function(){
+        fn = plugin.internals.sync
+
+        defaults = {
+          value: true
+          , value2: 'testing'
+          , _id: _.uniqueId('syncUpdate')
+          , _rev: 1
+        }
+
+        model = new (Backbone.Model.extend({
+          idAttribute: '_id'
+          , urlRoot: '/model'
+          , defaults: defaults
+        }))()
+
+        sinon.stub(plugin.internals.db, 'get')
+        sinon.stub(plugin.internals.db, 'save')
+        plugin.internals.feed = {
+          resume: sinon.stub()
+          , pause: sinon.stub()
+        }
+      })
+
+      afterEach(function(){
+        plugin.internals.db.get.restore()
+        plugin.internals.db.save.restore()
+      })
+
       it('gets the model from the db')
       it('calls the error callback with the error on a get error')
       it('pauses the feed')
       it('inserts into the db with merged attributes')
       it('inserts into the db with the most recent `_rev`')
+      it('retries on a conflict error', function(done){
+        var options = {
+          success: function(){
+            options.success.should.have.been.calledOnce
+            options.success.should.have.been.calledWith({_rev: 2})
+            done()
+          }
+          , error: function(err){
+            should.not.exist(err)
+            done()
+          }
+        }
+        sinon.spy(options, 'success')
+        model.set({value: false})
+
+        plugin.internals.db.get.yields(null, defaults)
+        // the inital save will throw an error
+        plugin.internals.db.save.yieldsAsync({error: 'conflict'})
+
+        fn('update', model, options)
+
+        // our next attemp to save will suceeed
+        plugin.internals.db.save.restore()
+        sinon.stub(plugin.internals.db, 'save')
+          .yieldsAsync(null, {
+            doc: _.extend(defaults, model.toJSON, {_rev: 2})
+            , rev: 2
+            , ok: true
+          })
+      })
       it('calls the error callback with the error on a insert error')
       it('retries on a null response')
       it('logs a success')

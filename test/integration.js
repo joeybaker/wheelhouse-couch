@@ -1,4 +1,4 @@
-/*global describe, it, after, before */
+/*global describe, it, after, before, beforeEach, afterEach */
 'use strict';
 
 describe('db integration tests', function(){
@@ -6,6 +6,7 @@ describe('db integration tests', function(){
     , request = require('request')
     , App = require('./fixtures/app')
     , app = new App()
+    , _ = require('lodash')
     , dbPlugin = require('../index.js')
     , pkg = require('../package.json')
     , chai = require('chai')
@@ -130,6 +131,38 @@ describe('db integration tests', function(){
           should.not.exist(model)
           should.not.exist(err)
         }
+      })
+    })
+
+    it('retries on a document update conflict', function(done){
+      var end = _.after(2, done)
+
+      testers.first().save({name: 'testing again'}, {
+        success: function(model, res){
+          model.get('name').should.equal('testing again')
+          res._rev.should.exist
+          end()
+        }
+        , error: function(model, err){
+          should.not.exist(model)
+          should.not.exist(err)
+          end()
+        }
+        , wait: false
+      })
+
+      testers.first().save({name: 'testing again'}, {
+        success: function(model, res){
+          model.get('name').should.equal('testing again')
+          res._rev.should.exist
+          end()
+        }
+        , error: function(model, err){
+          should.not.exist(model)
+          should.not.exist(err)
+          end()
+        }
+        , wait: false
       })
     })
 
