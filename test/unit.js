@@ -323,4 +323,9 @@ describe('db unit tests', function(){
     })
     describe('delete', function(){})
   })
+
+  describe('#feedSetup', function(){})
+  describe('#install', function(){})
+  describe('#attach', function(){})
+  describe('#init', function(){})
 })
