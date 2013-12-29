@@ -76,7 +76,7 @@ describe('db integration tests', function(){
     })
   })
 
-  describe('Backbone Sync', function(){
+  describe('Backbone.Sync', function(){
     var Model = Backbone.Model.extend({
       defaults: {
         name: null
@@ -90,6 +90,19 @@ describe('db integration tests', function(){
     })
     , testers = new Collection()
 
+    beforeEach(function(done){
+      testers.url = '/api/testers' + _.uniqueId()
+      testers.create({name: 'test', value: true}, {
+        success: function(){
+          done()
+        }
+      })
+    })
+
+    afterEach(function(){
+      testers.reset()
+    })
+
     it('can save a collection to the db', function(done){
       testers.create({
         name: 'testing a name'
@@ -99,8 +112,9 @@ describe('db integration tests', function(){
           model.get('name').should.equal('testing a name')
           done()
         }
-        , error: function(model, xhr){
-          console.error(xhr)
+        , error: function(model, err){
+          should.not.exist(model)
+          should.not.exist(err)
         }
       })
     })
@@ -112,8 +126,9 @@ describe('db integration tests', function(){
           res._rev.should.exist
           done()
         }
-        , error: function(model, xhr){
-          console.error(xhr)
+        , error: function(model, err){
+          should.not.exist(model)
+          should.not.exist(err)
         }
       })
     })
@@ -123,11 +138,12 @@ describe('db integration tests', function(){
       testers.length.should.equal(0)
       testers.fetch({
         success: function(collection){
-          collection.first().get('name').should.equal('testing again')
+          collection.first().get('name').should.equal('test')
           done()
         }
-        , error: function(model, xhr){
-          console.error(xhr)
+        , error: function(model, err){
+          should.not.exist(model)
+          should.not.exist(err)
         }
       })
     })
@@ -138,8 +154,9 @@ describe('db integration tests', function(){
           res._rev.should.exist
           done()
         }
-        , error: function(model, xhr){
-          console.error(xhr)
+        , error: function(model, err){
+          should.not.exist(model)
+          should.not.exist(err)
         }
       })
     })
