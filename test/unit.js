@@ -300,7 +300,6 @@ describe('db unit tests', function(){
         })
       })
     })
-    describe('update', function(){})
     describe('create', function(){
       before(function(){
         sinon.stub(plugin.internals, 'getUUID')
@@ -319,6 +318,18 @@ describe('db unit tests', function(){
       it('retries if the res didn\'t return `ok`')
       it('logs on success')
       it('calls success with the `_rev` and `_id`')
+      it('resumes the feed after the stack has cleared')
+    })
+    describe('update', function(){
+      it('gets the model from the db')
+      it('calls the error callback with the error on a get error')
+      it('pauses the feed')
+      it('inserts into the db with merged attributes')
+      it('inserts into the db with the most recent `_rev`')
+      it('calls the error callback with the error on a insert error')
+      it('retries on a null response')
+      it('logs a success')
+      it('calls the success callback with the new `_rev`')
       it('resumes the feed after the stack has cleared')
     })
     describe('delete', function(){})
