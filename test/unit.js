@@ -168,6 +168,11 @@ describe('db unit tests', function(){
       collection = new (Backbone.Collection.extend({
         url: '/collection'
       }))()
+
+      plugin.internals.feed = {
+        resume: sinon.stub()
+        , pause: sinon.stub()
+      }
     })
 
     it('logs an error if the db doesn\'t exist', function(){
@@ -300,26 +305,107 @@ describe('db unit tests', function(){
         })
       })
     })
+
     describe('create', function(){
-      before(function(){
+      var fn
+
+      beforeEach(function(){
+        fn = plugin.internals.sync
+
         sinon.stub(plugin.internals, 'getUUID')
-          .yields(_.uniqueId('uuid'))
+          .yields('uuid')
+        sinon.stub(plugin.internals.db, 'save')
       })
 
-      after(function(){
+      afterEach(function(){
         plugin.internals.getUUID.restore()
+        plugin.internals.db.save.restore()
       })
 
-      it('creates an id with the collection name ')
-      it('pauses the feed')
-      it('inserts into the db')
-      it('logs on error')
-      it('calls error with the error response')
-      it('retries if the res didn\'t return `ok`')
-      it('logs on success')
-      it('calls success with the `_rev` and `_id`')
-      it('resumes the feed after the stack has cleared')
+      it('creates an id with the collection name', function(){
+        fn('create', model)
+        plugin.internals.db.save.should.have.been.calledWith('model/uuid')
+      })
+
+      it('pauses the feed', function(){
+        fn('create', model)
+        plugin.internals.feed.pause.should.have.been.calledOnce
+      })
+
+      it('inserts into the db', function(){
+        plugin.internals.db.save.yields(null, {ok: true})
+        fn('create', model)
+        plugin.internals.db.save.should.have.been.calledOnce
+      })
+
+      it('logs on error', function(){
+        var error = {error: 'error', reason: 'reason'}
+        plugin.internals.db.save.yields(error)
+        fn('create', model)
+        app.log.error.should.have.been.calledOnce
+      })
+
+      it('calls error with the error response', function(){
+        var options = {
+            error: sinon.stub()
+          }
+          , error = {error: 'error', reason: 'reason'}
+
+        plugin.internals.db.save.yields(error)
+        fn('create', model, options)
+        options.error.should.have.been.calledOnce
+        options.error.should.have.been.calledWith(error)
+      })
+
+      it('retries if the res didn\'t return `ok`', function(done){
+        var options = {
+            success: function(){
+              plugin.internals.db.save.should.have.been.calledOnce
+              done()
+            }
+          }
+
+        plugin.internals.db.save.yieldsAsync(null, {ok: false})
+        fn('create', model, options)
+
+        plugin.internals.db.save.should.have.been.calledOnce
+
+        plugin.internals.db.save.restore()
+        sinon.stub(plugin.internals.db, 'save')
+          .yieldsAsync(null, {ok: true})
+      })
+
+      it('logs on success', function(){
+        plugin.internals.db.save.yields(null, {ok: true})
+
+        fn('create', model)
+        app.log.info.should.have.been.calledOnce
+      })
+
+      it('calls success with the `_rev` and `_id`', function(){
+        var options = {
+          success: sinon.spy()
+        }
+
+        plugin.internals.db.save.yields(null, {ok: true, rev: 1, id: 'id'})
+
+        fn('create', model, options)
+
+        options.success.should.have.been.calledWith({_rev: 1, _id: 'id'})
+      })
+
+      it('resumes the feed after the stack has cleared', function(done){
+        plugin.internals.db.save.yields(null, {ok: true, rev: 1, id: 'id'})
+
+        fn('create', model)
+
+        setImmediate(function(){
+          plugin.internals.feed.resume.should.have.been.calledOnce
+          done()
+        })
+      })
     })
+
     describe('update', function(){
       var fn
         , model
@@ -343,10 +429,6 @@ describe('db unit tests', function(){
 
         sinon.stub(plugin.internals.db, 'get')
         sinon.stub(plugin.internals.db, 'save')
-        plugin.internals.feed = {
-          resume: sinon.stub()
-          , pause: sinon.stub()
-        }
       })
 
       afterEach(function(){
