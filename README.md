@@ -65,6 +65,11 @@ You must have [grunt-cli](https://github.com/gruntjs/grunt-cli) installed: `sudo
 ## Changelog
 ### 0.4.0
 * **breaking change (kinda)** no longer automatically reading options from `app.config.get('db')` (this never really was operational anyway)
+* update the `backbone/collection` view to only look at ids with a `/` in them… for performance.
+* Add unit tests
+* Updates retry on a document update conflict
+* fix error callbacks. They now return just the response … which is as Backbone intended.
+* many methods were private before. They're now exposed in `.internals`
 
 ### 0.3.10
 * on db update error, don't log the input. It leads to log pollution.
