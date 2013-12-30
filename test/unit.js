@@ -354,11 +354,51 @@ describe('db unit tests', function(){
         plugin.internals.db.save.restore()
       })
 
-      it('gets the model from the db')
-      it('calls the error callback with the error on a get error')
-      it('pauses the feed')
-      it('inserts into the db with merged attributes')
-      it('inserts into the db with the most recent `_rev`')
+      it('gets the model from the db', function(){
+        fn('update', model)
+        plugin.internals.db.get.should.have.been.calledOnce
+      })
+
+      it('calls the error callback with the error on a get error', function(){
+        var options = {
+          error: sinon.stub()
+        }
+        plugin.internals.db.get.yields({error: 'error', reason: 'reason'})
+        fn('update', model, options)
+        options.error.should.have.been.calledOnce
+      })
+
+      it('pauses the feed', function(){
+        plugin.internals.db.get.yields(null, {})
+        fn('update', model)
+        plugin.internals.feed.pause.should.have.been.calledOnce
+      })
+
+      it('inserts into the db with merged attributes', function(){
+        var newModel
+
+        plugin.internals.db.get.yields(null, defaults)
+        model.set({value: false})
+        fn('update', model)
+
+        newModel = _.extend({}, defaults, model.toJSON(), {_rev: defaults._rev})
+        plugin.internals.db.save.should.have.been.calledWith(model.id, defaults._rev, newModel)
+      })
+
+      it('inserts into the db with the most recent `_rev`', function(){
+        var newModel
+
+        defaults._rev = 10
+
+        plugin.internals.db.get.yields(null, defaults)
+        model.set({value: false})
+        fn('update', model)
+
+        newModel = _.extend({}, defaults, model.toJSON(), {_rev: defaults._rev})
+        newModel._rev.should.equal(defaults._rev)
+        plugin.internals.db.save.should.have.been.calledWith(model.id, defaults._rev, newModel)
+      })
+
       it('retries on a conflict error', function(done){
         var options = {
           success: function(){
@@ -389,11 +429,64 @@ describe('db unit tests', function(){
             , ok: true
           })
       })
-      it('calls the error callback with the error on a insert error')
-      it('retries on a null response')
-      it('logs a success')
-      it('calls the success callback with the new `_rev`')
-      it('resumes the feed after the stack has cleared')
+
+      it('calls the error callback with the error on a insert error', function(){
+        var err = {error: 'err', reason: 'reason'}
+          , options = {
+            error: sinon.stub()
+          }
+
+        plugin.internals.db.get.yields(null, defaults)
+        plugin.internals.db.save.yields(err)
+        fn('update', model, options)
+        options.error.should.have.been.calledOnce
+        options.error.should.have.been.calledWith(err)
+      })
+
+      it('retries on a null response', function(done){
+        plugin.internals.db.get.yields(null, defaults)
+        plugin.internals.db.save.yieldsAsync(null, {})
+        fn('update', model, {
+          success: function(){
+            done()
+          }
+        })
+        plugin.internals.feed.pause.should.have.been.called.twice
+
+        plugin.internals.db.save.restore()
+        sinon.stub(plugin.internals.db, 'save').yieldsAsync(null, {ok: true, rev: 2, id: defaults.id})
+      })
+
+      it('logs a success', function(){
+        plugin.internals.db.get.yields(null, defaults)
+        plugin.internals.db.save.yields(null, {ok: true, rev: 2, id: defaults.id})
+
+        fn('update', model)
+
+        app.log.info.should.have.been.calledOnce
+      })
+
+      it('calls the success callback with the new `_rev`', function(){
+        plugin.internals.db.get.yields(null, defaults)
+        plugin.internals.db.save.yields(null, {ok: true, rev: 2, id: defaults.id})
+
+        fn('update', model, {
+          success: function(res){
+            res._rev.should.equal(2)
+          }
+        })
+      })
+
+      it('resumes the feed after the stack has cleared', function(done){
+        plugin.internals.db.get.yields(null, defaults)
+        plugin.internals.db.save.yields(null, {ok: true, rev: 2, id: defaults.id})
+        fn('update', model)
+
+        setImmediate(function(){
+          plugin.internals.feed.resume.should.have.been.calledOnce
+          done()
+        })
+      })
     })
     describe('delete', function(){})
   })
