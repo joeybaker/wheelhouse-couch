@@ -854,6 +854,38 @@ describe('db unit tests', function(){
     })
   })
 
-  describe('#attach', function(){})
+  describe('#attach', function(){
+    beforeEach(function(){
+      plugin.attach.call(app, {name: 'mydb'})
+    })
+
+    it('assigns options', function(){
+      plugin.internals.options.should.be.an.object
+      plugin.internals.options.should.include.keys('host', 'name')
+    })
+
+    it('creates a new cradle connection', function(){
+      should.exist(plugin.internals.connection)
+      plugin.internals.connection.should.include.keys('host', 'port')
+    })
+
+    it('sets the database', function(){
+      should.exist(plugin.internals.db)
+      plugin.internals.db.name.should.equal('mydb')
+    })
+
+    it('sets the db on the app', function(){
+      app.db.should.deep.equal(plugin.internals.db)
+    })
+
+    it('overrides Backbone.Sync', function(){
+      Backbone.sync.should.deep.equal(plugin.internals.sync)
+    })
+
+    it('stores Backbone on the app', function(){
+      app.Backbone.should.deep.equal(Backbone)
+    })
+  })
+
   describe('#init', function(){})
 })
