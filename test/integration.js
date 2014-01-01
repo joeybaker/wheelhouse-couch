@@ -134,6 +134,21 @@ describe('db integration tests', function(){
       })
     })
 
+    it('errors when trying to modify `createdAt`', function(done){
+      testers.first().save({name: 'testing again', createdAt: 'date'}, {
+        success: function(model, res){
+          should.not.exist(model)
+          should.not.exist(res)
+          done()
+        }
+        , error: function(model, err){
+          should.exist(err)
+          err.should.be.a.string
+          done()
+        }
+      })
+    })
+
     it('retries on a document update conflict', function(done){
       var end = _.after(2, done)
 

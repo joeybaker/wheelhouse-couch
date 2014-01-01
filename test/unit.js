@@ -525,6 +525,9 @@ describe('db unit tests', function(){
         fn('update', model, options)
 
         options.error.should.have.been.calledOnce
+        app.log.warn.should.have.been.calledOnce
+        model.get('createdAt').should.equal(defaults.createdAt)
+        plugin.internals.db.save.should.not.have.been.called
       })
 
       it('retries on a conflict error', function(done){
