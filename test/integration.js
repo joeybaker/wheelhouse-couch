@@ -231,9 +231,10 @@ describe('db integration tests', function(){
         success: function(model){
           should.exist(model.get('_id'))
 
-          app.db.merge(model.get('_id'), {value: 2}, function(err, res){
+          app.db.save(model.get('_id'), model.get('_rev'), _.extend({}, model.toJSON(), {value: 2}), function(err, res){
             res.ok.should.be.ok
-            // syncing isn't immediate. give it time to process
+
+            // syncing isn't immediate.
             setTimeout(function(){
               collection.first().get('value').should.equal(2)
               done()

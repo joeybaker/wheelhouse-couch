@@ -573,7 +573,11 @@ describe('db unit tests', function(){
     describe('delete', function(){})
   })
 
-  describe('#feedSetup', function(){})
+  describe('#feedSetup', function(){
+    describe('on an update', function(){
+      it('removes attributes from the model that were removed from the doc')
+    })
+  })
   describe('#install', function(){})
   describe('#attach', function(){})
   describe('#init', function(){})

@@ -70,6 +70,7 @@ You must have [grunt-cli](https://github.com/gruntjs/grunt-cli) installed: `sudo
 * Updates retry on a document update conflict
 * fix error callbacks. They now return just the response … which is as Backbone intended.
 * many methods were private before. They're now exposed in `.internals`
+* changes feed now removes attributes from the model that were deleted in the db
 
 ### 0.3.10
 * on db update error, don't log the input. It leads to log pollution.
