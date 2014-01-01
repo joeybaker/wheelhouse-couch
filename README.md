@@ -59,6 +59,8 @@ var model = Backbone.Model.extend({
 You must have [grunt-cli](https://github.com/gruntjs/grunt-cli) installed: `sudo npm i -g grunt-cli`
 `npm test`
 
+You'll need to have a user on your db with the username `test` and the password `test`.
+
 ### The Mocha way
 `mocha test/specs -ui bdd`
 
