@@ -441,6 +441,12 @@ describe('db unit tests', function(){
         plugin.internals.db.get.should.have.been.calledOnce
       })
 
+      it('logs on a get error', function(){
+        plugin.internals.db.get.yields({error: 'error', reason: 'reason'})
+        fn('update', model)
+        app.log.error.should.have.been.calledOnce
+      })
+
       it('calls the error callback with the error on a get error', function(){
         var options = {
           error: sinon.stub()
