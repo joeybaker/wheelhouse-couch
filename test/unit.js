@@ -332,6 +332,7 @@ describe('db unit tests', function(){
         plugin.internals.db.save.yields(null, {ok: true})
         fn('create', model)
         plugin.internals.db.save.should.have.been.calledOnce
+        plugin.internals.db.save.should.have.been.calledWith('model/uuid', model.toJSON())
       })
 
       it('logs on error', function(){
