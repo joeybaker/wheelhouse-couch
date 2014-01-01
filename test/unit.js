@@ -612,6 +612,7 @@ describe('db unit tests', function(){
       plugin.internals.db = {
         changes: sinon.stub().returns(new Events())
       }
+
       change = {
         doc: {
           _id: ''
@@ -655,6 +656,7 @@ describe('db unit tests', function(){
 
       describe('collection found', function(){
         var id = 'feed/uuid'
+
         beforeEach(function(){
           app.collections = {}
           app.collections.feed = new (Backbone.Collection.extend({
