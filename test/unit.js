@@ -669,6 +669,10 @@ describe('db unit tests', function(){
           change.doc._id = id
         })
 
+        afterEach(function(){
+          delete app.collections
+        })
+
         it('removes from the collection on a delete', function(done){
           change.deleted = true
           app.collections.feed.add({_id: id, _rev: '2'})
