@@ -688,6 +688,7 @@ describe('db unit tests', function(){
 
           process.nextTick(function(){
             app.log.debug.should.have.been.calledOnce
+            app.log.error.should.not.have.been.called
             app.collections.feed.remove.should.have.been.calledOnce
             done()
           })
