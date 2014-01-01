@@ -572,7 +572,7 @@ describe('db unit tests', function(){
       })
     })
 
-    describe.only('delete', function(){
+    describe('delete', function(){
       beforeEach(function(){
         sinon.stub(plugin.internals.db, 'save')
         sinon.spy(plugin.internals, 'sync')
@@ -599,10 +599,182 @@ describe('db unit tests', function(){
   })
 
   describe('#feedSetup', function(){
-    describe('on an update', function(){
-      it('removes attributes from the model that were removed from the doc')
+    var fn = plugin.internals.feedSetup
+      , Events = require('events').EventEmitter
+      , change
+
+    before(function(){
+      // call attach so that app is avaliable in the plugin
+      plugin.attach.call(app)
+    })
+
+    beforeEach(function(){
+      plugin.internals.db = {
+        changes: sinon.stub().returns(new Events())
+      }
+      change = {
+        doc: {
+          _id: ''
+        }
+      }
+    })
+
+    afterEach(function(){
+      delete plugin.internals.db
+    })
+
+    it('creates a follow instance on `internals.feed`', function(){
+      fn()
+      plugin.internals.db.changes.should.have.been.calledOnce
+    })
+
+    describe('on update', function(){
+      beforeEach(function(){
+        fn()
+      })
+
+      afterEach(function(){
+        delete plugin.internals.feed
+        delete app.collections
+      })
+
+      describe('no collection found', function(){
+        it('bails with no `app.collections`', function(){
+          plugin.internals.feed.emit('change', change)
+          app.log.debug.should.have.been.calledOnce
+          app.log.debug.should.have.been.calledWith('db: changes: ignoring: no collection found')
+        })
+
+        it('bails if the collection can\'t be found', function(){
+          app.collections = {}
+          plugin.internals.feed.emit('change', change)
+          app.log.debug.should.have.been.calledOnce
+          app.log.debug.should.have.been.calledWith('db: changes: ignoring: no collection found')
+        })
+      })
+
+      describe('collection found', function(){
+        var id = 'feed/uuid'
+        beforeEach(function(){
+          app.collections = {}
+          app.collections.feed = new (Backbone.Collection.extend({
+            model: Backbone.Model.extend({
+              idAttribute: '_id'
+            })
+          }))()
+          change.doc._id = id
+        })
+
+        it('removes from the collection on a delete', function(done){
+          change.deleted = true
+          app.collections.feed.add({_id: id, _rev: '2'})
+          sinon.spy(app.collections.feed, 'remove')
+
+          plugin.internals.feed.emit('change', change)
+
+          process.nextTick(function(){
+            app.log.debug.should.have.been.calledOnce
+            app.collections.feed.remove.should.have.been.calledOnce
+            done()
+          })
+        })
+
+        it('removes from the collection on a faux delete', function(done){
+          change.doc.isDeleted = true
+          app.collections.feed.add({_id: id, _rev: '2'})
+          sinon.spy(app.collections.feed, 'remove')
+
+          plugin.internals.feed.emit('change', change)
+
+          process.nextTick(function(){
+            app.log.debug.should.have.been.calledOnce
+            app.collections.feed.remove.should.have.been.calledOnce
+            done()
+          })
+        })
+
+        it('adds when this is the first _rev', function(done){
+          change.doc._rev = '1'
+
+          sinon.spy(app.collections.feed, 'add')
+
+          plugin.internals.feed.emit('change', change)
+
+          process.nextTick(function(){
+            app.log.debug.should.have.been.calledOnce
+            app.collections.feed.add.should.have.been.calledOnce
+            done()
+          })
+        })
+
+        it('updates when the _rev doesn\'t match', function(done){
+          change.doc._rev = '3'
+
+          app.collections.feed.add({_id: id, _rev: '2'})
+          sinon.spy(app.collections.feed.first(), 'set')
+
+          plugin.internals.feed.emit('change', change)
+
+          process.nextTick(function(){
+            app.log.debug.should.have.been.calledOnce
+            // once to clear, and once to set the new attributes
+            app.collections.feed.first().set.should.have.been.called.twice
+            done()
+          })
+        })
+
+        it('removes attributes from the model that were removed from the doc', function(done){
+          change.doc._rev = '3'
+
+          app.collections.feed.add({_id: id, _rev: '2', value: true})
+
+          sinon.spy(app.collections.feed.first(), 'set')
+          sinon.spy(app.collections.feed.first(), 'clear')
+
+          plugin.internals.feed.emit('change', change)
+
+          process.nextTick(function(){
+            app.log.debug.should.have.been.calledOnce
+            // once to clear, and once to set the new attributes
+            app.collections.feed.first().clear.should.have.been.called.twice
+            app.collections.feed.first().set.should.have.been.called.twice
+            should.not.exist(app.collections.feed.first().get('value'))
+            done()
+          })
+        })
+
+        it('ignores in all other cases', function(done){
+          change.doc._rev = '2'
+
+          app.collections.feed.add({_id: id, _rev: '2'})
+
+          plugin.internals.feed.emit('change', change)
+
+          process.nextTick(function(){
+            app.log.debug.should.have.been.calledOnce
+            app.log.debug.should.have.been.calledWith('db: changes: ignoring:')
+            done()
+          })
+        })
+      })
+    })
+
+    describe('on error', function(){
+      beforeEach(function(){
+        fn()
+      })
+
+      afterEach(function(){
+        delete plugin.internals.feed
+      })
+
+      it('logs on error', function(){
+        plugin.internals.feed.emit('error')
+        app.log.error.should.have.been.calledOnce
+      })
     })
   })
+
   describe('#install', function(){})
   describe('#attach', function(){})
   describe('#init', function(){})
