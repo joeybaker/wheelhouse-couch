@@ -338,7 +338,15 @@ describe('db unit tests', function(){
         plugin.internals.db.save.yields(null, {ok: true})
         fn('create', model)
         plugin.internals.db.save.should.have.been.calledOnce
-        plugin.internals.db.save.should.have.been.calledWith('model/uuid', model.toJSON())
+        plugin.internals.db.save.should.have.been.calledWith('model/uuid')
+      })
+
+      it('sets `createdAt` and `updatedAt`', function(){
+        var date = new Date().toString()
+        plugin.internals.db.save.yields(null, {ok: true})
+        fn('create', model)
+        plugin.internals.db.save.should.have.been.calledOnce
+        plugin.internals.db.save.should.have.been.calledWith('model/uuid', _.extend(model.toJSON(), {createdAt: date, updatedAt: date}))
       })
 
       it('logs on error', function(){
@@ -469,7 +477,9 @@ describe('db unit tests', function(){
         model.set({value: false})
         fn('update', model)
 
-        newModel = _.extend({}, defaults, model.toJSON(), {_rev: defaults._rev})
+        newModel = _.extend({}, defaults, model.toJSON(), {_rev: defaults._rev, updatedAt: new Date().toString()})
+
+        newModel.updatedAt.should.be.a.string
         plugin.internals.db.save.should.have.been.calledWith(model.id, defaults._rev, newModel)
       })
 
@@ -482,9 +492,39 @@ describe('db unit tests', function(){
         model.set({value: false})
         fn('update', model)
 
-        newModel = _.extend({}, defaults, model.toJSON(), {_rev: defaults._rev})
+        newModel = _.extend({}, defaults, model.toJSON(), {_rev: defaults._rev, updatedAt: new Date().toString()})
         newModel._rev.should.equal(defaults._rev)
         plugin.internals.db.save.should.have.been.calledWith(model.id, defaults._rev, newModel)
+      })
+
+      it('inserts into the db with an updated `updatedAt` time', function(){
+        var newModel
+
+        defaults._rev = 10
+        defaults.updatedAt = 'a date'
+
+        plugin.internals.db.get.yields(null, defaults)
+        model.set({value: false})
+        fn('update', model)
+
+        newModel = _.extend({}, defaults, model.toJSON(), {_rev: defaults._rev, updatedAt: new Date().toString()})
+        newModel._rev.should.equal(defaults._rev)
+        plugin.internals.db.save.should.have.been.calledWith(model.id, defaults._rev, newModel)
+      })
+
+      it('errors if `createdAt` is modified', function(){
+        var options = {
+            error: sinon.stub()
+          }
+
+        defaults._rev = 10
+        defaults.createdAt = 'a date'
+
+        plugin.internals.db.get.yields(null, defaults)
+        model.set({value: false, createdAt: 'new date'})
+        fn('update', model, options)
+
+        options.error.should.have.been.calledOnce
       })
 
       it('retries on a conflict error', function(done){
