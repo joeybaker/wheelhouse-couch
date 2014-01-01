@@ -72,6 +72,7 @@ You must have [grunt-cli](https://github.com/gruntjs/grunt-cli) installed: `sudo
 * many methods were private before. They're now exposed in `.internals`
 * changes feed now removes attributes from the model that were deleted in the db
 * the delete method is now much smarter… by just re-implementing the update method
+* **new** `createdAt` and `updatedAt` are now automatically created and updated.
 
 ### 0.3.10
 * on db update error, don't log the input. It leads to log pollution.
