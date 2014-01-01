@@ -622,11 +622,13 @@ describe('db unit tests', function(){
 
     afterEach(function(){
       delete plugin.internals.db
+      delete plugin.internals.feed
     })
 
     it('creates a follow instance on `internals.feed`', function(){
       fn()
       plugin.internals.db.changes.should.have.been.calledOnce
+      should.exist(plugin.internals.feed)
     })
 
     describe('on update', function(){
