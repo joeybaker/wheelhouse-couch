@@ -790,12 +790,68 @@ describe('db unit tests', function(){
   })
 
   describe('#install', function(){
-    it('creates the db')
-    it('logs on create error')
-    it('saves the view')
-    it('logs on save error')
-    it('listens to the changes feed')
-    it('sets that the db exists')
+    var fn
+
+    before(function(){
+      // call attach so that app is avaliable in the plugin
+      plugin.attach.call(app)
+    })
+
+    after(function(){
+      delete plugin.internals.dbExists
+    })
+
+    beforeEach(function(){
+      fn = plugin.internals.install
+      sinon.stub(plugin.internals.db, 'create')
+      sinon.stub(plugin.internals.db, 'save')
+      sinon.stub(plugin.internals, 'feedSetup')
+    })
+
+    afterEach(function(){
+      plugin.internals.db.create.restore()
+      plugin.internals.db.save.restore()
+      plugin.internals.feedSetup.restore()
+    })
+
+    it('creates the db', function(){
+      fn()
+      plugin.internals.db.create.should.have.been.calledOnce
+    })
+
+    it('logs on create error', function(){
+      plugin.internals.db.create.yields({})
+      fn()
+      app.log.error.should.have.been.calledOnce
+    })
+
+    it('saves the view', function(){
+      plugin.internals.db.create.yields()
+      fn()
+      plugin.internals.db.save.should.have.been.calledOnce
+      plugin.internals.db.save.should.have.been.calledWith('_design/backbone')
+    })
+
+    it('logs on save error', function(){
+      plugin.internals.db.create.yields()
+      plugin.internals.db.save.yields({})
+      fn()
+      app.log.error.should.have.been.calledOnce
+    })
+
+    it('listens to the changes feed', function(){
+      plugin.internals.db.create.yields()
+      plugin.internals.db.save.yields()
+      fn()
+      plugin.internals.feedSetup.should.have.been.calledOnce
+    })
+
+    it('sets that the db exists', function(){
+      plugin.internals.db.create.yields()
+      plugin.internals.db.save.yields()
+      fn()
+      plugin.internals.dbExists.should.be.true
+    })
   })
 
   describe('#attach', function(){})
