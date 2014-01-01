@@ -571,7 +571,31 @@ describe('db unit tests', function(){
         })
       })
     })
-    describe('delete', function(){})
+
+    describe.only('delete', function(){
+      beforeEach(function(){
+        sinon.stub(plugin.internals.db, 'save')
+        sinon.spy(plugin.internals, 'sync')
+      })
+
+      afterEach(function(){
+        plugin.internals.db.save.restore()
+        plugin.internals.sync.restore()
+      })
+
+      it('updates the model with the `isDeleted` attribute', function(){
+        fn('delete', model)
+        model.toJSON().should.include.keys('isDeleted')
+        model.get('isDeleted').should.be.true
+      })
+
+      it('calls sync as an update with updated model', function(){
+        fn('delete', model)
+        plugin.internals.sync.should.have.been.called.twice
+        model.attributes.isDeleted = true
+        plugin.internals.sync.should.have.been.calledWith('update', model)
+      })
+    })
   })
 
   describe('#feedSetup', function(){
