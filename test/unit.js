@@ -789,7 +789,15 @@ describe('db unit tests', function(){
     })
   })
 
-  describe('#install', function(){})
+  describe('#install', function(){
+    it('creates the db')
+    it('logs on create error')
+    it('saves the view')
+    it('logs on save error')
+    it('listens to the changes feed')
+    it('sets that the db exists')
+  })
+
   describe('#attach', function(){})
   describe('#init', function(){})
 })
