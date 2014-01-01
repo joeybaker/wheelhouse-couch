@@ -859,6 +859,13 @@ describe('db unit tests', function(){
       plugin.attach.call(app, {name: 'mydb'})
     })
 
+    afterEach(function(){
+      delete plugin.internals.connection
+      delete plugin.internals.db
+      delete app.db
+      delete app.Backbone
+    })
+
     it('assigns options', function(){
       plugin.internals.options.should.be.an.object
       plugin.internals.options.should.include.keys('host', 'name')
@@ -887,5 +894,96 @@ describe('db unit tests', function(){
     })
   })
 
-  describe('#init', function(){})
+  describe('#init', function(){
+    before(function(){
+      plugin.attach.call(app)
+    })
+
+    beforeEach(function(){
+      sinon.stub(plugin.internals.db, 'exists')
+    })
+
+    afterEach(function(){
+      plugin.internals.db.exists.restore()
+    })
+
+    it('checks if the db exists', function(){
+      plugin.init()
+      plugin.internals.db.exists.should.have.been.calledOnce
+    })
+
+    describe('when the existence check throws an error', function(){
+      var done
+      beforeEach(function(){
+        done = sinon.stub()
+
+        plugin.internals.db.exists.yields({})
+        plugin.init(done)
+      })
+
+      it('logs on error', function(){
+        app.log.error.should.have.been.calledOnce
+      })
+
+      it('calls the callback on error', function(){
+        done.should.have.been.calledOnce
+      })
+    })
+
+    describe('when db exists', function(){
+      var done
+
+      beforeEach(function(){
+        done = sinon.stub()
+
+        sinon.stub(plugin.internals, 'feedSetup')
+        plugin.internals.db.exists.yields(null, true)
+        plugin.init(done)
+      })
+
+      afterEach(function(){
+        plugin.internals.feedSetup.restore()
+      })
+
+      it('logs that it exists', function(){
+        app.log.info.should.have.been.calledOnce
+      })
+
+      it('sets that the db exists', function(){
+        plugin.internals.dbExists.should.be.true
+      })
+
+      it('listens to the changes feed', function(){
+        plugin.internals.feedSetup.should.have.been.calledOnce
+      })
+
+      it('calls the callback', function(){
+        done.should.have.been.calledOnce
+      })
+    })
+
+    describe('when db doesn\'t exist', function(){
+      var done
+
+      beforeEach(function(){
+        done = sinon.stub()
+
+        sinon.stub(plugin.internals, 'install')
+        plugin.internals.db.exists.yields(null, false)
+        plugin.init(done)
+      })
+
+      afterEach(function(){
+        plugin.internals.install.restore()
+      })
+
+      it('logs the install', function(){
+        app.log.info.should.have.been.calledOnce
+      })
+
+      it('installs', function(){
+        plugin.internals.install.should.have.been.calledWith(done)
+      })
+    })
+  })
 })
