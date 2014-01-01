@@ -22,7 +22,7 @@
   "license": "BSD",
   "dependencies": {
     "lodash": "~2.4",
-    "backbone": "~1.0",
+    "backbone": "1.0.0",
     "cradle": "~0.6.6"
   },
   "devDependencies": {
