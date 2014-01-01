@@ -307,11 +307,7 @@ describe('db unit tests', function(){
     })
 
     describe('create', function(){
-      var fn
-
       beforeEach(function(){
-        fn = plugin.internals.sync
-
         sinon.stub(plugin.internals, 'getUUID')
           .yields('uuid')
         sinon.stub(plugin.internals.db, 'save')
@@ -407,13 +403,10 @@ describe('db unit tests', function(){
     })
 
     describe('update', function(){
-      var fn
-        , model
+      var model
         , defaults
 
       beforeEach(function(){
-        fn = plugin.internals.sync
-
         defaults = {
           value: true
           , value2: 'testing'
@@ -515,6 +508,7 @@ describe('db unit tests', function(){
             doc: _.extend(defaults, model.toJSON, {_rev: 2})
             , rev: 2
             , ok: true
+            , id: model.id
           })
       })
 
