@@ -178,7 +178,7 @@ describe('db unit tests', function(){
     afterEach(function(done){
       // enusre the call stack is clear
       // we have tests that will do async operations that we don't need to wait for to complete the test, but they'll run anyway, so we'll just ensure we're in an isoated environment for all tests
-      setTimeout(done, 4)
+      setTimeout(done, 8)
     })
 
     it('logs an error if the db doesn\'t exist', function(){
