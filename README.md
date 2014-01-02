@@ -3,8 +3,6 @@ wheelhouse-couch
 
 [![NPM](https://nodei.co/npm/wheelhouse-couch.png)](https://nodei.co/npm/wheelhouse-couch/)
 
-_formerly known as [flatiron-couch-backbone](http://github.com/joeybaker/flatiron-couch-backbone)_
-
 A wheelhouse package for using Backbone server side with [flatiron](https://github.com/flatiron/flatiron). This sets Couch as the data store for the server and is largely a rewrite of [backbone-couch](https://github.com/developmentseed/backbone-couch).  CouchDB communication is via the excellent [cradle](https://github.com/cloudhead/cradle) CouchDB library.
 
 ## Usage
@@ -81,3 +79,5 @@ You'll need to have a user on your db with the username `test` and the password 
 
 ### 0.3.9
 * pass `notOriginal` for changes feed upates. This enables ignoring of events on changes that are triggered on another server.
+
+_formerly known as [flatiron-couch-backbone](http://github.com/joeybaker/flatiron-couch-backbone)_
