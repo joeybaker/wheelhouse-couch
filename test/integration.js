@@ -1,51 +1,64 @@
-/*global describe, it, after, before */
+/*global describe, it, after, before, beforeEach, afterEach */
 'use strict';
 
-describe('db', function(){
+describe('db integration tests', function(){
   var Backbone = require('backbone')
+    , request = require('request')
     , App = require('./fixtures/app')
     , app = new App()
+    , _ = require('lodash')
     , dbPlugin = require('../index.js')
     , pkg = require('../package.json')
     , chai = require('chai')
     , should = chai.should()
 
   before(function(done){
-    app.use(dbPlugin, {
-      name: pkg.name + '-test'
-      , getId: function(model){
-        return model.url().replace('/api/', '')
-      }
-      , getCollectionName: function(collection){
-        return collection.url.replace('/api/', '')
-      }
-    }, done)
+    // ensure our test user is created
+    request.put({
+      url: 'http://admin:test@localhost:5984/_config/admins/test'
+      , json: 'test'
+    }, function(){
+      app.use(dbPlugin, {
+        name: pkg.name + '-test'
+        , getId: function(model){
+          return model.url().replace('/api/', '')
+        }
+        , getCollectionName: function(collection){
+          return collection.url.replace('/api/', '')
+        }
+        , auth: {username: 'test', password: 'test'}
+      })
+      app.options.log = {console: {silent: true}}
+      app.start(8999, done)
+    })
   })
-
-  it('defaults options to app.config.get("database")')
 
   it('attaches to a flatiron app', function(){
     dbPlugin.should.exist
     app.db.should.exist
   })
+
   it('has a database', function(done){
     app.db.exists(function(err, exists){
       exists.should.be.true
       done()
     })
   })
+
   it('can write data', function(done){
     app.db.save('first', {value: 1}, function(err, res){
       res.ok.should.be.ok
       done()
     })
   })
+
   it('can update data', function(done){
     app.db.merge('first', {value: 2, second: true}, function(err, res){
       res.ok.should.be.true
       done()
     })
   })
+
   it('can read data', function(done){
     app.db.get('first', function(err, res){
       res.value.should.equal(2)
@@ -53,6 +66,7 @@ describe('db', function(){
       done()
     })
   })
+
   it('can delete data', function(done){
     app.db.get('first', function(err, res){
       should.not.exist(err)
@@ -63,7 +77,7 @@ describe('db', function(){
     })
   })
 
-  describe('Backbone Sync', function(){
+  describe('Backbone.Sync', function(){
     var Model = Backbone.Model.extend({
       defaults: {
         name: null
@@ -77,6 +91,19 @@ describe('db', function(){
     })
     , testers = new Collection()
 
+    beforeEach(function(done){
+      testers.url = '/api/testers' + _.uniqueId()
+      testers.create({name: 'test', value: true}, {
+        success: function(){
+          done()
+        }
+      })
+    })
+
+    afterEach(function(){
+      testers.reset()
+    })
+
     it('can save a collection to the db', function(done){
       testers.create({
         name: 'testing a name'
@@ -86,11 +113,13 @@ describe('db', function(){
           model.get('name').should.equal('testing a name')
           done()
         }
-        , error: function(model, xhr){
-          console.error(xhr)
+        , error: function(model, err){
+          should.not.exist(model)
+          should.not.exist(err)
         }
       })
     })
+
     it('can update a model', function(done){
       testers.first().save({name: 'testing again'}, {
         success: function(model, res){
@@ -98,32 +127,84 @@ describe('db', function(){
           res._rev.should.exist
           done()
         }
-        , error: function(model, xhr){
-          console.error(xhr)
+        , error: function(model, err){
+          should.not.exist(model)
+          should.not.exist(err)
         }
       })
     })
+
+    it('errors when trying to modify `createdAt`', function(done){
+      testers.first().save({name: 'testing again', createdAt: 'date'}, {
+        success: function(model, res){
+          should.not.exist(model)
+          should.not.exist(res)
+          done()
+        }
+        , error: function(model, err){
+          should.exist(err)
+          err.should.be.a.string
+          done()
+        }
+      })
+    })
+
+    it('retries on a document update conflict', function(done){
+      var end = _.after(2, done)
+
+      testers.first().save({name: 'testing again'}, {
+        success: function(model, res){
+          model.get('name').should.equal('testing again')
+          res._rev.should.exist
+          end()
+        }
+        , error: function(model, err){
+          should.not.exist(model)
+          should.not.exist(err)
+          end()
+        }
+        , wait: false
+      })
+
+      testers.first().save({name: 'testing again'}, {
+        success: function(model, res){
+          model.get('name').should.equal('testing again')
+          res._rev.should.exist
+          end()
+        }
+        , error: function(model, err){
+          should.not.exist(model)
+          should.not.exist(err)
+          end()
+        }
+        , wait: false
+      })
+    })
+
     it('can fetch a collection', function(done){
       testers.reset()
       testers.length.should.equal(0)
       testers.fetch({
         success: function(collection){
-          collection.first().get('name').should.equal('testing again')
+          collection.first().get('name').should.equal('test')
           done()
         }
-        , error: function(model, xhr){
-          console.error(xhr)
+        , error: function(model, err){
+          should.not.exist(model)
+          should.not.exist(err)
         }
       })
     })
+
     it('can delete a model', function(done){
       testers.first().destroy({
         success: function(model, res){
           res._rev.should.exist
           done()
         }
-        , error: function(model, xhr){
-          console.error(xhr)
+        , error: function(model, err){
+          should.not.exist(model)
+          should.not.exist(err)
         }
       })
     })
@@ -165,9 +246,10 @@ describe('db', function(){
         success: function(model){
           should.exist(model.get('_id'))
 
-          app.db.merge(model.get('_id'), {value: 2}, function(err, res){
+          app.db.save(model.get('_id'), model.get('_rev'), _.extend({}, model.toJSON(), {value: 2}), function(err, res){
             res.ok.should.be.ok
-            // syncing isn't immediate. give it time to process
+
+            // syncing isn't immediate.
             setTimeout(function(){
               collection.first().get('value').should.equal(2)
               done()
@@ -200,9 +282,6 @@ describe('db', function(){
         }, 300)
       })
     })
-
-    // TODO: we need a test for keeping two different cradle instances with diffrent caches in sync that won't throught document update conflicts on updates
-    it('keeps two different cradle caches in sync for updates')
   })
 
   after(function(done){
