@@ -3,8 +3,6 @@ wheelhouse-couch
 
 [![NPM](https://nodei.co/npm/wheelhouse-couch.png)](https://nodei.co/npm/wheelhouse-couch/)
 
-_formerly known as [flatiron-couch-backbone](http://github.com/joeybaker/flatiron-couch-backbone)_
-
 A wheelhouse package for using Backbone server side with [flatiron](https://github.com/flatiron/flatiron). This sets Couch as the data store for the server and is largely a rewrite of [backbone-couch](https://github.com/developmentseed/backbone-couch).  CouchDB communication is via the excellent [cradle](https://github.com/cloudhead/cradle) CouchDB library.
 
 ## Usage
@@ -37,8 +35,6 @@ app.start(8999)
 
 After using the plugin, `Backbone.sync` is overridden to use CouchDB on the server.
 
-Instead of passing options, you can use `app.config.set('db')`. Anything set in here will be the default, but overridden by the options object.
-
 ```js
 app.config.set('db:name', 'database-name')
 app.config.set('db:host', 'localhost')
@@ -61,13 +57,27 @@ var model = Backbone.Model.extend({
 You must have [grunt-cli](https://github.com/gruntjs/grunt-cli) installed: `sudo npm i -g grunt-cli`
 `npm test`
 
+You'll need to have a user on your db with the username `test` and the password `test`.
+
 ### The Mocha way
 `mocha test/specs -ui bdd`
 
 ## Changelog
+### 0.4.0
+* **breaking change (kinda)** no longer automatically reading options from `app.config.get('db')` (this never really was operational anyway)
+* update the `backbone/collection` view to only look at ids with a `/` in them… for performance.
+* Add unit tests
+* Updates retry on a document update conflict
+* fix error callbacks. They now return just the response … which is as Backbone intended.
+* many methods were private before. They're now exposed in `.internals`
+* changes feed now removes attributes from the model that were deleted in the db
+* the delete method is now much smarter… by just re-implementing the update method
+* **new** `createdAt` and `updatedAt` are now automatically created and updated.
 
 ### 0.3.10
 * on db update error, don't log the input. It leads to log pollution.
 
 ### 0.3.9
 * pass `notOriginal` for changes feed upates. This enables ignoring of events on changes that are triggered on another server.
+
+_formerly known as [flatiron-couch-backbone](http://github.com/joeybaker/flatiron-couch-backbone)_
