@@ -277,7 +277,7 @@ describe('db integration tests', function(){
         should.not.exist(err)
         setTimeout(function(){
           // check this server's list of models to see if we got it
-          collection.get(doc._id).get('value').should.equal('first')
+          app.collections.serverTest.get(doc._id).get('value').should.equal('first')
           done()
         }, 300)
       })
