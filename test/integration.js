@@ -149,6 +149,28 @@ describe('db integration tests', function(){
       })
     })
 
+    it('receives an updated `updatedAt`', function(done){
+      var updatedAt = testers.first().get('updatedAt')
+
+      // ensure enough time passes so the updatedAt is different
+      setTimeout(function(){
+        testers.first().save({name: 'testing again'}, {
+          success: function(model, res){
+            model.get('name').should.equal('testing again')
+            should.not.exist(res.createdAt)
+            should.exist(res.updatedAt)
+            model.get('updatedAt').should.not.equal(updatedAt)
+            res._rev.should.exist
+            done()
+          }
+          , error: function(model, err){
+            should.not.exist(model)
+            should.not.exist(err)
+          }
+        })
+      }, 1005)
+    })
+
     it('retries on a document update conflict', function(done){
       var end = _.after(2, done)
 
