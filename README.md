@@ -63,6 +63,12 @@ You'll need to have a user on your db with the username `test` and the password 
 `mocha test/specs -ui bdd`
 
 ## Changelog
+### 0.4.2
+Send `updatedAt` and `createdAt` back out when they're modified.
+
+### 0.4.1
+Publish error
+
 ### 0.4.0
 * **breaking change (kinda)** no longer automatically reading options from `app.config.get('db')` (this never really was operational anyway)
 * update the `backbone/collection` view to only look at ids with a `/` in them… for performance.

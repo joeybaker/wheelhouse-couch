@@ -393,16 +393,17 @@ describe('db unit tests', function(){
         app.log.info.should.have.been.calledOnce
       })
 
-      it('calls success with the `_rev` and `_id`', function(){
+      it('calls success with the `_rev`, `_id`, `updatedAt`, and  `createdAt`', function(){
         var options = {
-          success: sinon.spy()
-        }
+            success: sinon.spy()
+          }
+          , date = new Date().toString()
 
         plugin.internals.db.save.yields(null, {ok: true, rev: 1, id: 'id'})
 
         fn('create', model, options)
 
-        options.success.should.have.been.calledWith({_rev: 1, _id: 'id'})
+        options.success.should.have.been.calledWith({_rev: 1, _id: 'id', createdAt: date, updatedAt: date})
       })
 
       it('resumes the feed after the stack has cleared', function(done){
@@ -534,7 +535,7 @@ describe('db unit tests', function(){
         var options = {
           success: function(){
             options.success.should.have.been.calledOnce
-            options.success.should.have.been.calledWith({_rev: 2})
+            options.success.should.have.been.calledWith({_rev: 2, updatedAt: new Date().toString()})
             done()
           }
           , error: function(err){
@@ -551,7 +552,7 @@ describe('db unit tests', function(){
 
         fn('update', model, options)
 
-        // our next attemp to save will suceeed
+        // our next attempt to save will suceeed
         plugin.internals.db.save.restore()
         sinon.stub(plugin.internals.db, 'save')
           .yieldsAsync(null, {
@@ -598,13 +599,15 @@ describe('db unit tests', function(){
         app.log.info.should.have.been.calledOnce
       })
 
-      it('calls the success callback with the new `_rev`', function(){
+      it('calls the success callback with the new `_rev` and `updatedAt`', function(){
         plugin.internals.db.get.yields(null, defaults)
         plugin.internals.db.save.yields(null, {ok: true, rev: 2, id: defaults.id})
 
         fn('update', model, {
           success: function(res){
             res._rev.should.equal(2)
+            should.exist(res.updatedAt)
+            res.updatedAt.should.equal(new Date().toString())
           }
         })
       })
