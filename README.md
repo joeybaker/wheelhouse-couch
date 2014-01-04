@@ -63,6 +63,9 @@ You'll need to have a user on your db with the username `test` and the password 
 `mocha test/specs -ui bdd`
 
 ## Changelog
+### 0.4.3
+Updated publish process.
+
 ### 0.4.2
 Send `updatedAt` and `createdAt` back out when they're modified.
 

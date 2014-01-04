@@ -105,6 +105,13 @@ module.exports = function(grunt){
           , failOnError: true
         }
       }
+      , gitPullRebase: {
+        command: 'git pull --rebase origin master'
+        , options: {
+          stdout: true
+          , failOnError: true
+        }
+      }
       , gitPush: {
         command: 'git push origin master --tags'
         , options: {
@@ -132,5 +139,16 @@ module.exports = function(grunt){
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks)
 
   grunt.registerTask('test', ['simplemocha'])
-  grunt.registerTask('publish', ['shell:gitRequireCleanTree', 'jshint', 'shell:npmTest', 'bump:' + (grunt.option('bump') || 'patch'), 'shell:gitCommitPackage', 'shell:gitTag', 'shell:gitPush', 'shell:npmPublish'])
+  grunt.registerTask('publish', [
+    'shell:gitRequireCleanTree'
+    , 'shell:gitPullRebase'
+    , 'jshint'
+    , 'jscs'
+    , 'shell:npmTest'
+    , 'bump:' + (grunt.option('bump') || 'patch')
+    , 'shell:gitCommitPackage'
+    , 'shell:gitTag'
+    , 'shell:gitPush'
+    , 'shell:npmPublish'
+  ])
 }
