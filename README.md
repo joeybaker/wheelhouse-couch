@@ -63,6 +63,9 @@ You'll need to have a user on your db with the username `test` and the password 
 `mocha test/specs -ui bdd`
 
 ## Changelog
+## 0.4.4
+**security fix** it is no longer possible to bypass the delete method by manually setting `isDeleted: true`
+
 ### 0.4.3
 Updated publish process.
 

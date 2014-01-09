@@ -329,6 +329,30 @@ describe('db unit tests', function(){
         plugin.internals.db.save.should.have.been.calledWith('model/uuid')
       })
 
+      it('errors if `isDeleted` is modified', function(){
+        var options = {
+            error: sinon.stub()
+          }
+
+        // when isDeleted is set to a value
+        model.set({value: false, isDeleted: 'value'})
+        fn('create', model, options)
+
+        options.error.should.have.been.calledOnce
+        app.log.warn.should.have.been.calledOnce
+        should.not.exist(model.get('isDeleted'))
+        plugin.internals.db.save.should.not.have.been.called
+
+        // when isDeleted is set to false
+        model.set({value: false, isDeleted: false})
+        fn('create', model, options)
+
+        options.error.should.have.been.called.twice
+        app.log.warn.should.have.been.called.twice
+        should.not.exist(model.get('isDeleted'))
+        plugin.internals.db.save.should.not.have.been.called
+      })
+
       it('pauses the feed', function(){
         fn('create', model)
         plugin.internals.feed.pause.should.have.been.calledOnce
@@ -528,6 +552,46 @@ describe('db unit tests', function(){
         options.error.should.have.been.calledOnce
         app.log.warn.should.have.been.calledOnce
         model.get('createdAt').should.equal(defaults.createdAt)
+        plugin.internals.db.save.should.not.have.been.called
+      })
+
+      it('errors if `isDeleted` is modified', function(){
+        var options = {
+            error: sinon.stub()
+          }
+
+        defaults._rev = 10
+        defaults.createdAt = 'a date'
+
+        plugin.internals.db.get.yields(null, defaults)
+
+        // when isDeleted is set to a value
+        model.set({value: false, isDeleted: 'value'})
+        fn('update', model, options)
+
+        options.error.should.have.been.calledOnce
+        app.log.warn.should.have.been.calledOnce
+        should.not.exist(model.get('isDeleted'))
+        plugin.internals.db.save.should.not.have.been.called
+
+        // when isDeleted is set to false
+        model.set({value: false, isDeleted: false})
+        fn('update', model, options)
+
+        options.error.should.have.been.called.twice
+        app.log.warn.should.have.been.called.twice
+        should.not.exist(model.get('isDeleted'))
+        plugin.internals.db.save.should.not.have.been.called
+
+        // when isDeleted is modfied on a deleted doc
+        defaults.isDeleted = true
+
+        model.set({value: false, isDeleted: false})
+        fn('update', model, options)
+
+        options.error.should.have.been.called.thrice
+        app.log.warn.should.have.been.called.thrice
+        model.get('isDeleted').should.be.true
         plugin.internals.db.save.should.not.have.been.called
       })
 
